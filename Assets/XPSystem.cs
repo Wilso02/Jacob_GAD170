@@ -27,7 +27,7 @@ public class XPSystem : MonoBehaviour
 
     }
 
-    public void InitalStates();
+    public void InitalStates()
     {
 
     //setup our stats, level, curexp, reqexp, etc...
