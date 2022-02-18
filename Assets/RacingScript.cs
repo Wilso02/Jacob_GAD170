@@ -15,13 +15,13 @@ public class RacingScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-         if(Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             GainProgress(speed);
 
@@ -33,6 +33,34 @@ public class RacingScript : MonoBehaviour
         curLapProgress += progress;
         Debug.Log("Progress Gained" + progress);
         Debug.Log("Current Progress is: " + curLapProgress);
+        CheckProgress(curLapProgress);
     }
+
+    public void CheckProgress(float progress)
+    {
+        if (progress >= reqLapProgress)
+        {
+
+            //Completed a lap!
+            LapCompleted();
+            Debug.Log("Required Progress Achieved!");
+
+        }
+    }
+
+    public void LapCompleted()
+    {
+        //Update Laps
+        laps += 1;
+
+        //reset our current lap progress
+        curLapProgress = 0f;
+
+        //either increase our required lap progress, or change our speed
+        reqLapProgress *= 1.15f;
+        Debug.Log("Lap Completed");
+        Debug.Log("Laps Completed: " + laps);
+    }
+
 
 }
