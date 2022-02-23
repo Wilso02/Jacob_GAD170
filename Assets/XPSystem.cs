@@ -5,9 +5,9 @@ using UnityEngine;
 public class XPSystem : MonoBehaviour
 {
     //System
-    public int level; //laps
+    public int level; 
     public float curEXP;
-    public float reqEXP; //reLapProgress
+    public float reqEXP; 
      
 
     //Stats
@@ -25,7 +25,7 @@ public class XPSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        Interaction(0);
     }
 
     public void InitalStates()
@@ -52,11 +52,21 @@ public class XPSystem : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-
+           
             GainExp(15);
-            
-
+            Debug.Log("Tree Cut Down");
+            return;
         }
+
+       if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            GainExp(10);
+            Debug.Log("Mined Stone");
+            return;
+        }
+       
+
+        
 
     }
 
@@ -65,13 +75,9 @@ public class XPSystem : MonoBehaviour
 
         //gain ex, probably something to do with our curEXP
         curEXP += gain;
-        Debug.Log("XP Gained" + gain);
+        Debug.Log("XP Gained " + gain);
         Debug.Log("Current XP is : " + curEXP);
-        Debug.Log("Current Level is " + level);
-
-        return;
-
-
+        
     }
 
     public void LevelUp()
