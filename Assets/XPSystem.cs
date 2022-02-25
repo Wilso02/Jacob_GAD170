@@ -25,14 +25,15 @@ public class XPSystem : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Welcome to Alien Attack!");
+        Debug.Log("Welcome to Alien Attack! Press 'Spacebar' to begin!");
         Debug.Log("To view Level press 'T'! ");
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        Interaction();
+        
     }
 
     public void InitalStates()
