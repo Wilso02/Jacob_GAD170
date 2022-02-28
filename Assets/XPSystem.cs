@@ -26,9 +26,11 @@ public class XPSystem : MonoBehaviour
     void Start()
     {
         InitialStates();
-
+        
         Debug.Log("Welcome to Alien Attack! Press 'Spacebar' to begin!");
         Debug.Log("To view Level press 'T'! ");
+
+        
         
     }
 
@@ -36,95 +38,38 @@ public class XPSystem : MonoBehaviour
     void Update()
     {
 
-        // Spacebar begins the alien attack
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("You may decide your encounter! Press '1' to fight a xenomorph or '2' to fight a horde of headcrabs!");
+            Debug.Log("You may decide your encounter! Press 'R' to fight a xenomorph or 'A' to fight a horde of headcrabs!");   
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            Debug.Log("Your current level is " + level);
+            Debug.Log("You have choosen to fight the Xenomorph! Good Luck!");
+            AlienAttack();
         }
 
-
-        //Alien Attack
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("You have encountered a Xenomorph, Press 'Q' to attempt to fight!");
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            // Help needed
-            Debug.Log("Flamethrower Activate!");
-            alienHealth -= alienHealth - attack;
-
-        }
-
-        if (alienHealth <= 0)
-        {
-            Debug.Log("The xenomorph retreated, XP granted!, Press 'Spacebar to return' ");
-            GainExp(25);
-        }
-
-        else
-        {
-            Debug.Log("Xenomorph at HP: " + alienHealth);
-        }
-
-        // Headcrab Horde Encounter
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Debug.Log("You have encountered a Horde of Headcrabs, Press 'W' to attempt to fight!");
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            Debug.Log("Throwing a grenade!");
-            headcrabHealth -= headcrabHealth - attack;
-        }
-
-        if (headcrabHealth <= 0)
-        {
-            Debug.Log("They're all just corpses now! XP Granted, Press 'Spacebar to return' ");
-            GainExp(30);
-            Debug.Log("What's that rumbling? Press '3' to investigate. ");
-        }
-        else
-        {
-            Debug.Log(" Keep throwing soilder! There's only a couple left!" + headcrabHealth);
-        }
-
-
-        //Boss Fight
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            Debug.Log("Holy Moses! Thats the Queen Xenomorph! Press 'E' to fight!");
+            Debug.Log("You have choosen to fight the Horde of Headcrabs! Good Luck!");
+            HeadcrabAttack();
         }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log("You shoot a rocket, at the Queen!");
-            alienQueen -= alienQueen - attack;
-
+            Debug.Log("Holy Moses! Thats the Queen Xenomorph! FIGHT! FIGHT! FIGHT!");
+            QueenAttack();
         }
 
-        if (alienQueen <= 0)
+            if (Input.GetKeyDown(KeyCode.T))
         {
-            Debug.Log("The Queen has fallen! Well Done Soilder! Proceed to Exfil! Press 'Z' to Exfil");
-
-        }
-        else
-        {
-            Debug.Log("The Queen still stands! Reload! Reload!" + alienQueen);
+            Debug.Log("Your current level is " + level);
         }
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            Debug.Log("Congrats Soilder on making it outta their alive! However reports state theres another attack! Your level was " + level);
+            LeaveInteraction();
         }
-        // Check with teacher on why it constantly runs
 
     }
 
@@ -150,9 +95,74 @@ public class XPSystem : MonoBehaviour
 
     }
 
-    
    
-    
+
+    public void AlienAttack()
+    {
+
+            //Alien Attack
+            Debug.Log("Flamethrower Activate!");
+            alienHealth = alienHealth - attack;
+
+            if (alienHealth <= 0)
+            {
+                Debug.Log("The xenomorph retreated, XP granted!, Press 'Spacebar to return' ");
+                GainExp(25);
+            }
+   
+            else
+            {
+                Debug.Log("Xenomorph at HP: " + alienHealth);
+            }  
+            
+    }
+
+
+    public void HeadcrabAttack()
+    {
+
+            //Headcrab Attack
+            Debug.Log("Throwing a grenade!");
+            headcrabHealth = headcrabHealth - attack;
+
+            if (headcrabHealth <= 0)
+            {
+                Debug.Log("They're all just corpses now! XP Granted, Press 'Spacebar' to return or 'S' to investigate the rumbling. ");
+                GainExp(30);
+            }
+
+            else
+            {
+               Debug.Log(" Keep throwing soilder! There's only a couple left! HP: " + headcrabHealth);
+            }
+
+    }
+
+
+    public void QueenAttack()
+    {
+
+            Debug.Log("You shoot a rocket, at the Queen!");
+            alienQueen = alienQueen - attack;
+
+           if (alienQueen <= 0)
+           {
+            Debug.Log("The Queen has fallen! Well Done Soilder! Proceed to Exfil! Press 'Z' to Exfil");
+            LeaveInteraction();
+           }
+
+           else
+           {
+            Debug.Log("The Queen still stands! Reload! Reload! HP: " + alienQueen);
+           }
+
+    }
+        
+    public void LeaveInteraction()
+    { 
+            Debug.Log("Congrats Soilder on making it outta their alive! However reports state theres another attack! Your level was " + level);
+    }
+
 
     public void GainExp(float gain)
     {
