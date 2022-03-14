@@ -171,6 +171,7 @@ public class XPSystem : MonoBehaviour
         curEXP += gain;
         Debug.Log("XP Gained " + gain);
         Debug.Log("Current XP is : " + curEXP);
+        LevelUp();
         
     }
 
