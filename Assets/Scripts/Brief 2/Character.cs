@@ -9,6 +9,7 @@ public class Character : MonoBehaviour
     public int health = 100;
     public int attack;
     public int defense;
+    public int speed;
 
     public GameObject nameTag;
 
@@ -22,8 +23,9 @@ public class Character : MonoBehaviour
 
     private void InitStats()
     {
-        attack = Random.Range(5, 20);
-        defense = Random.Range(5, 20);
+        attack = Random.Range (5, 20);
+        defense = Random.Range (5, 20);
+        speed = Random.Range (5, 20);
     }
 
     public void UpdateName(string newName)
