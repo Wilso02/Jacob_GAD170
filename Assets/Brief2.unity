@@ -646,20 +646,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 1444202638}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34d44618858956441b6cb33524c23eea, type: 3}
+  m_Script: {fileID: 11500000, guid: a9908139b4432e749920bfd43f59bcd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   fighterPrefab: {fileID: 1960919506727948775, guid: d02336f3ae7496541b5ac02446e1232e, type: 3}
   teamSize: 3
   fighterNames:
-  - Bonnie
-  - Chica
   - Freddy
+  - Chica
+  - Bonnie
+  - Micheal
   - William
-  - Michael
   - Vanessa
-  teamAFighters: []
-  teamBFighters: []
+  teamA:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  teamB:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1444202640
 Transform:
   m_ObjectHideFlags: 0
