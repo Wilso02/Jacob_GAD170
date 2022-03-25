@@ -9,7 +9,7 @@ TagManager:
   - T1P3
   - T2P1
   - T2P2
-  - T2P3
+  - UIManager
   layers:
   - Default
   - TransparentFX
