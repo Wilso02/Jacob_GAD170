@@ -170,7 +170,7 @@ GameObject:
   - component: {fileID: 45461032}
   - component: {fileID: 45461031}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: UIManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1853,7 +1853,7 @@ GameObject:
   - component: {fileID: 1444202640}
   - component: {fileID: 1444202639}
   m_Layer: 0
-  m_Name: BattleManager
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1879,6 +1879,7 @@ MonoBehaviour:
   teamB: []
   spawnLocs: []
   uiM: {fileID: 0}
+  textBox: {fileID: 0}
 --- !u!4 &1444202640
 Transform:
   m_ObjectHideFlags: 0

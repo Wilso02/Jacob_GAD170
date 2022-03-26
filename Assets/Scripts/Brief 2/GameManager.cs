@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public enum GameState
     {
         prep,
+        create,
         pick,
         fight,
         result,
@@ -23,24 +24,19 @@ public class GameManager : MonoBehaviour
     public GameObject[] spawnLocs;
     public UIManager uiM;
     private int SpawnTracker;
+    public TextBox textBox;
+    private string message;
+    private bool simulate = true;
 
 
-    void Awake()
-    {
-
-        teamA = CreateTeam(teamA);
-        teamB = CreateTeam(teamB);
-
-        GameObject randomA = teamA[Random.Range(0, teamSize)];
-        GameObject randomB = teamB[Random.Range(0, teamSize)];
-
-    }
     // Start is called before the first frame update
     void Start()
     {
 
+
+        //this updates the health bar on damge taken during fighting scene
         uiM = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UIManager>();
-        if(uiM != null)
+        if (uiM != null)
         {
 
             uiM.AssignBars(teamA);
@@ -54,49 +50,99 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (simulate)
         {
 
-            GameObject randA = teamA[Random.Range(0, teamSize)];
-            GameObject randB = teamB[Random.Range(0, teamSize)];
-
-            randA.GetComponent<Stats>().UpdateHealth(Random.Range(-20, -5));
-            randB.GetComponent<Stats>().UpdateHealth(Random.Range(-20, -5));
-
-            if (uiM != null)
+            simulate = false;
+            switch (gState)
             {
+                //prepares the fighters (creates teams and places players within)
+                case GameState.prep:
+                    message = "Preparing...";
+                    teamA = CreateTeam(teamA);
+                    teamB = CreateTeam(teamB);
 
-                uiM.UpdateBars();
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
+                    StartCoroutine(TransitionTimer(2f, GameState.create));
+                    break;
+
+
+                //places the teams into the game in specific spots 
+                case GameState.create:
+                    message = "Creating Teams....";
+                    GameObject[] CreateTeam(GameObject[] incTeam)
+                    {
+                        incTeam = new GameObject[teamSize];
+                        for (int i = 0; i < teamSize; i++)
+                        {
+                            GameObject go = Instantiate(fighterPrefab, spawnLocs[SpawnTracker].transform.position, transform.rotation);
+                            SpawnTracker++;
+
+                            incTeam[i] = go;
+
+                            go.GetComponent<Character>().UpdateName(fighterNames[Random.Range(0, fighterNames.Length)]);
+
+                        }
+
+                        return incTeam;
+                    }
+
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
+                    StartCoroutine(TransitionTimer(2f, GameState.pick));
+                    break;
+                
+                    //randomly selects 1 fighter out of each team to fight one another then, selects another.
+                case GameState.pick:
+                    message = "Picking fighters!";
+                    //Figure out code to call fighters in here
+
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
+                    StartCoroutine(TransitionTimer(2f, GameState.fight));
+                    break;
+
+                 
+                case GameState.fight:
+                    //random fighter selected to fight
+                    GameObject randomA = teamA[Random.Range(0, teamSize)];
+                    GameObject randomB = teamB[Random.Range(0, teamSize)];
+
+                    Fight(randomA, randomB);
+
+
+                    break;
+
+                    //Determines what team has the most amount of players left
+                case GameState.result:
+                    message = "The results are in!";
+
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
+                    StartCoroutine(TransitionTimer(2f, GameState.victory));
+                    break;
+
+                    //Announces the team that won
+                case GameState.victory:
+                    message = "And the winner is... ";
+
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
+                    Application.Quit();
+                    break;
 
             }
-
         }
-    }
-
-    public GameObject[] CreateTeam(GameObject[] incTeam)
-    {
-        incTeam = new GameObject[teamSize];
-        for (int i = 0; i < teamSize; i++)
-        {
-            GameObject go = Instantiate(fighterPrefab, spawnLocs[SpawnTracker].transform.position, transform.rotation);
-            SpawnTracker++;
-
-            incTeam[i] = go;
-
-            go.GetComponent<Character>().UpdateName(fighterNames[Random.Range(0, fighterNames.Length)]);
-
-        }
-
-        return incTeam;
     }
 
     public void Fight(GameObject fighterA, GameObject fighterB)
     {
-        
+
         Character fAstats = fighterA.GetComponent<Character>();
         Character fBstats = fighterB.GetComponent<Character>();
 
+        //if fighterA has faster speed they will attack first otherwise fighterB will attack first
         if (fAstats.speed < fBstats.speed)
         {
             // Mathf.Clamp(variable, minimumValue, MaximumValue
@@ -121,7 +167,53 @@ public class GameManager : MonoBehaviour
             Debug.Log("Fighter A's Health is now: " + fBstats.health);
         }
 
+        //if health is 0 we have a winner
+        if (fBstats.health <= 0)
+        {
+
+            StartCoroutine(TransitionTimer(2f, GameState.result));
+
+        }
+
+        //no team is fully eliminated fight continues
+        else
+        {
+
+            StartCoroutine(TransitionTimer(2f, GameState.fight));
+
+        }
+
+        //if health is 0 we have a winner
+        if (fAstats.health <= 0)
+        {
+
+            StartCoroutine(TransitionTimer(2f, GameState.result));
+
+        }
         
+        //no team is fully eliminated fight continues
+        else
+        {
+
+            StartCoroutine(TransitionTimer(2f, GameState.fight));
+
+        }
+
+    }
+
+
+    IEnumerator TransitionTimer(float delay, GameState newState)
+    {
+
+        //the timer takes a delay, and determines what state we want to switch to
+        yield return new WaitForSeconds(delay);
+
+        //set the new state
+        gState = newState;
+
+        //Let the code run again
+        simulate = true;
+
     }
 
     public void ButtonPressed()
@@ -129,7 +221,7 @@ public class GameManager : MonoBehaviour
 
         int rand = Random.Range(0, 7);
 
-        if(rand >= 3)
+        if (rand >= 3)
         {
             teamB[Random.Range(0, teamSize)].GetComponent<Stats>().UpdateHealth(Random.Range(-20, -5));
 
@@ -142,7 +234,7 @@ public class GameManager : MonoBehaviour
 
         }
 
-        if(uiM != null)
+        if (uiM != null)
         {
 
             uiM.UpdateBars();
@@ -150,18 +242,18 @@ public class GameManager : MonoBehaviour
         }
 
         int killed = 0;
-        for(int i = 0; i < teamSize; i++)
+        for (int i = 0; i < teamSize; i++)
         {
 
-                if (teamA[i].GetComponent<Stats>().health <= 0)
-                {
+            if (teamA[i].GetComponent<Stats>().health <= 0)
+            {
 
-                    killed++;
-                
-                }
+                killed++;
+
+            }
         }
 
-        if(killed >= 3)
+        if (killed >= 3)
         {
 
             Debug.Log("Team A is defeated!");
@@ -171,10 +263,10 @@ public class GameManager : MonoBehaviour
 
         killed = 0;
 
-        for(int x = 0; x < teamSize; x++)
+        for (int x = 0; x < teamSize; x++)
         {
 
-            if(teamB[x].GetComponent<Stats>().health <= 0)
+            if (teamB[x].GetComponent<Stats>().health <= 0)
             {
 
                 killed++;
@@ -183,14 +275,17 @@ public class GameManager : MonoBehaviour
 
         }
 
-        if(killed >= 3)
+        if (killed >= 3)
         {
 
             Debug.Log("Team B is defeated!");
             Application.Quit();
 
         }
-
     }
-
 }
+
+
+
+
+
