@@ -16,16 +16,25 @@ public class GameManager : MonoBehaviour
     }
 
     public GameState gState;
+
     public GameObject fighterPrefab;
     public int teamSize = 3;
     public string[] fighterNames;
     public GameObject[] teamA;
     public GameObject[] teamB;
+    public GameObject randomA;
+    public GameObject randomB;
     public GameObject[] spawnLocs;
     public UIManager uiM;
+
     private int SpawnTracker;
     public TextBox textBox;
     private string message;
+
+    public float deadTeamA = 0f;
+    public float deadTeamB = 0f;
+    
+
     private bool simulate = true;
 
 
@@ -59,8 +68,6 @@ public class GameManager : MonoBehaviour
                 //prepares the fighters (creates teams and places players within)
                 case GameState.prep:
                     message = "Preparing...";
-                    teamA = CreateTeam(teamA);
-                    teamB = CreateTeam(teamB);
 
                     Debug.Log(message);
                     textBox.NewMessage(message);
@@ -71,22 +78,8 @@ public class GameManager : MonoBehaviour
                 //places the teams into the game in specific spots 
                 case GameState.create:
                     message = "Creating Teams....";
-                    GameObject[] CreateTeam(GameObject[] incTeam)
-                    {
-                        incTeam = new GameObject[teamSize];
-                        for (int i = 0; i < teamSize; i++)
-                        {
-                            GameObject go = Instantiate(fighterPrefab, spawnLocs[SpawnTracker].transform.position, transform.rotation);
-                            SpawnTracker++;
-
-                            incTeam[i] = go;
-
-                            go.GetComponent<Character>().UpdateName(fighterNames[Random.Range(0, fighterNames.Length)]);
-
-                        }
-
-                        return incTeam;
-                    }
+                    teamA = CreateTeam(teamA);
+                    teamB = CreateTeam(teamB);
 
                     Debug.Log(message);
                     textBox.NewMessage(message);
@@ -96,37 +89,70 @@ public class GameManager : MonoBehaviour
                     //randomly selects 1 fighter out of each team to fight one another then, selects another.
                 case GameState.pick:
                     message = "Picking fighters!";
-                    //Figure out code to call fighters in here
 
-                    Debug.Log(message);
-                    textBox.NewMessage(message);
-                    StartCoroutine(TransitionTimer(2f, GameState.fight));
+                    //Figure out code to call fighters in here
+                    randomA = teamA[Random.Range(0, teamSize)];
+                    randomB = teamB[Random.Range(0, teamSize)];
+
+                    if (randomA.GetComponent<Character>().health <= 0 | randomB.GetComponent<Character>().health <= 0)
+                    {
+                        message = "Picking a Different Fighter...";
+                        Debug.Log(message);
+                        StartCoroutine(TransitionTimer(0f, GameState.pick));
+                    }
+                    else
+                    {
+
+                        StartCoroutine(TransitionTimer(2f, GameState.fight));
+
+                    }
                     break;
 
                  
                 case GameState.fight:
                     //random fighter selected to fight
-                    GameObject randomA = teamA[Random.Range(0, teamSize)];
-                    GameObject randomB = teamB[Random.Range(0, teamSize)];
-
                     Fight(randomA, randomB);
-
 
                     break;
 
                     //Determines what team has the most amount of players left
                 case GameState.result:
-                    message = "The results are in!";
+                    if (deadTeamA == 3f)
+                    {
 
-                    Debug.Log(message);
-                    textBox.NewMessage(message);
-                    StartCoroutine(TransitionTimer(2f, GameState.victory));
+                        StartCoroutine(TransitionTimer(2f, GameState.victory));
+
+                    }
+                    if (deadTeamB == 3f)
+                    {
+
+                        StartCoroutine(TransitionTimer(2f, GameState.victory));
+
+                    }
+                    if (deadTeamA != 3f && deadTeamB != 3f)
+                    {
+                        message = "Picking Fighters...";
+                        StartCoroutine(TransitionTimer(2f, GameState.pick));
+                    }
                     break;
 
-                    //Announces the team that won
+                //Announces the team that won
                 case GameState.victory:
-                    message = "And the winner is... ";
+                    if (deadTeamA == 3f)
+                    {
+                        message = "Team B wins";
+                        Debug.Log(message);
+                        textBox.NewMessage(message);
+                    }
 
+                    if (deadTeamB == 3f)
+                    {
+                        message = "Team A wins";
+                        Debug.Log(message);
+                        textBox.NewMessage(message);
+                    }
+
+                    message = "Victory?";
                     Debug.Log(message);
                     textBox.NewMessage(message);
                     Application.Quit();
@@ -136,69 +162,111 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public GameObject[] CreateTeam(GameObject[] incTeam)
+    {
+        incTeam = new GameObject[teamSize];
+        for (int i = 0; i < teamSize; i++)
+        {
+            GameObject go = Instantiate(fighterPrefab, spawnLocs[SpawnTracker].transform.position, transform.rotation);
+            SpawnTracker++;
+
+            incTeam[i] = go;
+
+            go.GetComponent<Character>().UpdateName(fighterNames[Random.Range(0, fighterNames.Length)]);
+
+        }
+
+        return incTeam;
+    }
+
     public void Fight(GameObject fighterA, GameObject fighterB)
     {
+        int coinflip = Random.Range(0, 2);
+        Character fAStats = fighterA.GetComponent<Character>();
+        Character fBStats = fighterB.GetComponent<Character>();
 
-        Character fAstats = fighterA.GetComponent<Character>();
-        Character fBstats = fighterB.GetComponent<Character>();
-
-        //if fighterA has faster speed they will attack first otherwise fighterB will attack first
-        if (fAstats.speed < fBstats.speed)
+        if (coinflip == 0)
         {
-            // Mathf.Clamp(variable, minimumValue, MaximumValue
-            int dmg = fAstats.attack - fBstats.defense;
-            dmg = Mathf.Clamp(dmg, 1, fAstats.attack);
+            //fighterB.GetComponent<Character>().health -= fighterA.GetComponent<Character>().Attack - fighterB.GetComponent<Character>().defense;
+            //defense > attack
 
-            fBstats.health -= dmg;
+            if (fBStats.defense >= fAStats.attack)
+            {
+                //if the defense is greater then the attack do nothing.
+                message = "Fighter A tries to attack Fighter B";
+                Debug.Log(message);
+                textBox.NewMessage(message);
+                fBStats.health = fBStats.health - (fAStats.attack - (fBStats.defense / 4));
+                message = "Fighter B takes minimal damage, health is now " + fBStats.health;
+                Debug.Log(message);
+                textBox.NewMessage(message);
 
-            Debug.Log("Fighter A attacks Fighter B");
-            Debug.Log("Fighter B's health is now: " + fBstats.health);
+            }
+            else
+            {
+                //if the defense is less then the attack decrease health
+                fBStats.health = fBStats.health - (fAStats.attack - fBStats.defense);
+                message = "Fighter A attacks Fighter B";
+                Debug.Log(message);
+                textBox.NewMessage(message);
+                message = "Fighter B's health is now = " + fBStats.health;
+                Debug.Log(message);
+                textBox.NewMessage(message);
+            }
+
+            if (fBStats.health <= 0)
+            {
+                //if fighter B's health is 0 go to the results
+                message = "Fighter A defeated Fighter B!";
+                deadTeamB = deadTeamB + 1f;
+                StartCoroutine(TransitionTimer(2f, GameState.result));
+            }
+            else
+            {
+                //if not battle again
+                StartCoroutine(TransitionTimer(2f, GameState.fight));
+            }
 
         }
-
         else
         {
-            int dmg = fBstats.attack - fAstats.defense;
-            dmg = Mathf.Clamp(dmg, 1, fBstats.attack);
+            if (fAStats.defense >= fBStats.attack)
+            {
+                //if the defense is greater then the attack do nothing.
+                message = "Fighter B tries to attack Fighter A";
+                Debug.Log(message);
+                textBox.NewMessage(message);
+                fAStats.health = fAStats.health - (fBStats.attack - (fAStats.defense / 2));
+                message = "Fighter A takes minimal damage, health is now " + fAStats.health;
+                Debug.Log(message);
+                textBox.NewMessage(message);
 
-            fAstats.health -= dmg;
+            }
+            else
+            {
+                //if the defense is less then the attack decrease health
+                fAStats.health = fAStats.health - (fBStats.attack - fAStats.defense);
+                message = "Fighter B attacks Fighter A";
+                Debug.Log(message);
+                textBox.NewMessage(message);
+                message = "Fighter A's health is now = " + fAStats.health;
+                Debug.Log(message);
+                textBox.NewMessage(message);
+            }
 
-            Debug.Log("Fighter B attacks Fighter A");
-            Debug.Log("Fighter A's Health is now: " + fBstats.health);
+            if (fAStats.health <= 0)
+            {
+                //if fighter A's health is 0 go to the results
+                message = "Fighter B defeated Fighter A!";
+                deadTeamA = deadTeamA + 1f;
+                StartCoroutine(TransitionTimer(2f, GameState.result));
+            }
+            else
+            {
+                //if not battle again
+                StartCoroutine(TransitionTimer(2f, GameState.fight));
+            }
         }
-
-        //if health is 0 we have a winner
-        if (fBstats.health <= 0)
-        {
-
-            StartCoroutine(TransitionTimer(2f, GameState.result));
-
-        }
-
-        //no team is fully eliminated fight continues
-        else
-        {
-
-            StartCoroutine(TransitionTimer(2f, GameState.fight));
-
-        }
-
-        //if health is 0 we have a winner
-        if (fAstats.health <= 0)
-        {
-
-            StartCoroutine(TransitionTimer(2f, GameState.result));
-
-        }
-        
-        //no team is fully eliminated fight continues
-        else
-        {
-
-            StartCoroutine(TransitionTimer(2f, GameState.fight));
-
-        }
-
     }
 
 

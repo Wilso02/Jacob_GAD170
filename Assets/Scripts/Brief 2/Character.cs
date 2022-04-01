@@ -6,7 +6,7 @@ public class Character : MonoBehaviour
 {
 
     public string name;
-    public int health = 100;
+    public int health = 20;
     public int attack;
     public int defense;
     public int speed;
@@ -23,8 +23,8 @@ public class Character : MonoBehaviour
 
     private void InitStats()
     {
-        attack = Random.Range (5, 20);
-        defense = Random.Range (5, 20);
+        attack = Random.Range (5, 10);
+        defense = Random.Range (1, 5);
         speed = Random.Range (5, 20);
     }
 
